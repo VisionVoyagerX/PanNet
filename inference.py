@@ -144,7 +144,7 @@ def main():
                 axis[2].imshow((scaleMinMax(mssr.permute(0, 3, 2, 1).detach().cpu()[
                                0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
                 axis[2].set_title(
-                    f'(c) PNN {test_metric["psnr"]:.2f}dB/{test_metric["ssim"]:.4f}')
+                    f'(c) PanNet {test_metric["psnr"]:.2f}dB/{test_metric["ssim"]:.4f}')
                 axis[2].axis("off")
 
                 axis[3].imshow((scaleMinMax(mshr.permute(0, 3, 2, 1).detach().cpu()[
