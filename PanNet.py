@@ -23,8 +23,12 @@ class Residual_Block(nn.Module):
        
 
 class PanNet_model(nn.Module):
-    def __init__(self, scale, **kwards):
+    def __init__(self, scale, **kwargs):
         super(PanNet_model, self).__init__()
+        self.mslr_mean = kwargs.get('mslr_mean')
+        self.mslr_std =  kwargs.get('mslr_std')
+        self.pan_mean =  kwargs.get('pan_mean')
+        self.pan_std =  kwargs.get('pan_std')
         self.scale = scale
 
         self.layer_0 = nn.Sequential(
@@ -48,6 +52,10 @@ class PanNet_model(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, pan, mslr):
+        #channel-wise normalization
+        '''pan = (pan - self.pan_mean) / self.pan_std
+        mslr = (mslr - self.mslr_mean) / self.mslr_std'''
+
         lr_up = self.interpolate(mslr, scale_factor=self.scale, mode='bicubic')
         lr_hp = mslr - kornia.filters.BoxBlur((5, 5))(mslr)
         pan_hp = pan - kornia.filters.BoxBlur((5, 5))(pan)
@@ -55,6 +63,12 @@ class PanNet_model(nn.Module):
         ms = torch.cat([pan_hp, lr_u_hp], dim=1)
         fea = self.layer_1(ms)
         output = self.layer_2(fea) + lr_up
+
+
+
+        #channel-wise denormalization
+        '''sum(p.numel() for p in self.parameters() if p.requires_grad)'''
+
 
         return output
 

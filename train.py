@@ -43,7 +43,7 @@ def main():
                      pan_std=train_dataset.pan_std.to(device)).to(device)
 
 
-    optimizer = SGD(model.parameters(), lr=0.0001, momentum=0.9, weight_decay=10e-7)
+    optimizer = SGD(model.parameters(), lr=0.000007, momentum=0.9, weight_decay=10e-7)
 
 
     '''# initialize optimizers
@@ -82,10 +82,8 @@ def main():
     steps = 250000
     save_interval = 1000
     report_interval = 50
-    test_intervals = [100000, 200000, 300000, 400000,
-                      500000, 600000, 700000, 800000, 900000, 1000000]
-    evaluation_interval = [100000, 200000, 300000, 400000,
-                           500000, 600000, 700000, 800000, 900000, 1000000]
+    test_intervals = [20000, 40000, 60000, 80000, 1000000, 120000, 140000, 160000, 180000, 2000000, 2200000, 2400000, 2500000]
+    evaluation_interval = [20000, 40000, 60000, 80000, 1000000, 120000, 140000, 160000, 180000, 2000000, 2200000, 2400000, 2500000]
     
     lr_decay_intervals = [100000, 200000]
     val_steps = 50
@@ -98,7 +96,7 @@ def main():
 
     summary(model, pan_example, mslr_example, verbose=1)
 
-    scheduler = StepLR(optimizer, step_size=1, gamma=10)
+    scheduler = StepLR(optimizer, step_size=1, gamma=0.1)
 
     print('==> Starting training ...')
     train_iter = iter(train_loader)
@@ -112,7 +110,7 @@ def main():
                           'tr_metrics': tr_metrics,
                           'val_metrics': val_metrics,
                           'test_metrics': test_metrics}
-            save_checkpoint(checkpoint, 'pnn_model', current_daytime)
+            save_checkpoint(checkpoint, 'pannet_model', current_daytime)
 
         try:
             # Samples the batch
@@ -220,7 +218,7 @@ def main():
                               'tr_metrics': tr_metrics,
                               'val_metrics': val_metrics,
                               'test_metrics': test_metrics}
-                save_checkpoint(checkpoint, 'pnn_model',
+                save_checkpoint(checkpoint, 'pannet_model',
                                 current_daytime + '_best_eval')
 
         # test model
@@ -271,7 +269,7 @@ def main():
                               'tr_metrics': tr_metrics,
                               # 'val_metrics': val_metrics,
                               'test_metrics': test_metrics}
-                save_checkpoint(checkpoint, 'pnn_model',
+                save_checkpoint(checkpoint, 'pannet_model',
                                 current_daytime + '_best_test')
 
     print('==> training ended <==')

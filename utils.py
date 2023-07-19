@@ -41,16 +41,16 @@ def save_checkpoint(state, filename: str, current_daytime: str):
     (checkpoint_path/filename).mkdir(parents=True, exist_ok=True)
     torch.save(state,  checkpoint_path / filename / f'{filename}_{current_daytime}.pth.tar')
 
-def load_checkpoint(checkpoint, model, optimizer, tr_metrics): #test_metrics val_metrics
+def load_checkpoint(checkpoint, model, optimizer, tr_metrics, val_metrics, test_metrics): #test_metrics val_metrics
     #print("=> Loading checkpoint")
     try:
         model.load_state_dict(checkpoint['state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         tr_metrics = checkpoint['tr_metrics']
-        #val_metrics = checkpoint['val_metrics']
-        #test_metrics = checkpoint['test_metrics']
+        val_metrics = checkpoint['val_metrics']
+        test_metrics = checkpoint['test_metrics']
 
-        return (tr_metrics) #val_metrics
+        return (tr_metrics, val_metrics, test_metrics) #val_metrics
     except:
         print('Could not load model')
         return Exception
