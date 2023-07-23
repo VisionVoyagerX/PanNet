@@ -59,5 +59,5 @@ Estimated Total Size (MB): 276.55
 
 ## WorldView-3
 
-![alt text](https://github.com/nickdndndn/PanNet/blob/main/results_WV3/Images.png?raw=true)
+![alt text](https://github.com/nickdndndn/PanNet/blob/main/results/Images_WV3.png?raw=true)
 
