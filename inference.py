@@ -19,28 +19,27 @@ import matplotlib.pyplot as plt
 
 def main():
     # Prepare device
-    # TODO add more code for server
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(device)
 
     # Initialize DataLoader
-    train_dataset = WV3(
-        Path("F:/Data/WorldView3/train/train_wv3-001.h5"), transforms=[(RandomHorizontalFlip(1), 0.3), (RandomVerticalFlip(1), 0.3)]) #/home/ubuntu/project
+    train_dataset = GaoFen2(
+        Path("F:/Data/GaoFen-2/train/train_gf2-001.h5"), transforms=[(RandomHorizontalFlip(1), 0.3), (RandomVerticalFlip(1), 0.3)]) #/home/ubuntu/project
     train_loader = DataLoader(
         dataset=train_dataset, batch_size=16, shuffle=True, drop_last=True)
 
-    validation_dataset = WV3(
-        Path("F:/Data/WorldView3/val/valid_wv3.h5"))
+    validation_dataset = GaoFen2(
+        Path("F:/Data/GaoFen-2/val/valid_gf2.h5"))
     validation_loader = DataLoader(
         dataset=validation_dataset, batch_size=16, shuffle=True)
 
-    test_dataset = WV3(
-        Path("F:/Data/WorldView3/drive-download-20230627T115841Z-001/test_wv3_multiExm1.h5"))
+    test_dataset = GaoFen2(
+        Path("F:/Data/GaoFen-2/drive-download-20230623T170619Z-001/test_gf2_multiExm1.h5"))
     test_loader = DataLoader(
         dataset=test_dataset, batch_size=1, shuffle=False)
 
     # Initialize Model, optimizer, criterion and metrics
-    model = PanNet_model(scale=4, ms_channels=8, mslr_mean=train_dataset.mslr_mean.to(device), mslr_std=train_dataset.mslr_std.to(device), pan_mean=train_dataset.pan_mean.to(device),
+    model = PanNet_model(scale=4, ms_channels=4, mslr_mean=train_dataset.mslr_mean.to(device), mslr_std=train_dataset.mslr_std.to(device), pan_mean=train_dataset.pan_mean.to(device),
                      pan_std=train_dataset.pan_std.to(device)).to(device)
 
 
@@ -94,7 +93,7 @@ def main():
     pan_example = torch.randn(
         (1, 1, 256, 256)).to(device)
     mslr_example = torch.randn(
-        (1, 8, 64, 64)).to(device)
+        (1, 4, 64, 64)).to(device)
 
     summary(model, pan_example, mslr_example, verbose=1)
 
@@ -105,13 +104,14 @@ def main():
     # load checkpoint
     if continue_from_checkpoint:
         tr_metrics, val_metrics, test_metrics = load_checkpoint(torch.load(
-            'checkpoints/pannet_model_WV3/pannet_model_WV3_2023_07_22-14_38_46.pth.tar'), model, optimizer, tr_metrics, val_metrics, test_metrics)
+            'checkpoints/pannet_model/pannet_model_2023_07_19-18_16_37.pth.tar'), model, optimizer, tr_metrics, val_metrics, test_metrics)
         print('Model Loaded ...')
 
     def scaleMinMax(x):
         return ((x - np.nanmin(x)) / (np.nanmax(x) - np.nanmin(x)))
 
-    idx = 14  #4 or 10 or 11 or 14 or 15 16 17
+    idx = 8  #4 or 10 or 11 or 14 or 15 16 17
+    # for gaofen: 15
     # evaluation mode
     model.eval()
     with torch.no_grad():
@@ -131,27 +131,27 @@ def main():
 
                 figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(15, 5))
                 axis[0].imshow((scaleMinMax(mslr.permute(0, 3, 2, 1).detach().cpu()[
-                               0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
+                                0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
                 axis[0].set_title('(a) LR')
                 axis[0].axis("off")
 
                 axis[1].imshow(pan.permute(0, 3, 2, 1).detach().cpu()[
-                               0, ...], cmap='gray')
+                                0, ...], cmap='gray')
                 axis[1].set_title('(b) PAN')
                 axis[1].axis("off")
 
                 axis[2].imshow((scaleMinMax(mssr.permute(0, 3, 2, 1).detach().cpu()[
-                               0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
+                                0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
                 axis[2].set_title(
                     f'(c) PanNet {test_metric["psnr"]:.2f}dB/{test_metric["ssim"]:.4f}')
                 axis[2].axis("off")
 
                 axis[3].imshow((scaleMinMax(mshr.permute(0, 3, 2, 1).detach().cpu()[
-                               0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
+                                0, ...].numpy())).astype(np.float32)[..., :3], cmap='viridis')
                 axis[3].set_title('(d) GT')
                 axis[3].axis("off")
 
-                plt.savefig('results/Images.png')
+            plt.savefig('results/Images.png')
 
 
 if __name__ == '__main__':
