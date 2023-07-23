@@ -111,7 +111,7 @@ def main():
     def scaleMinMax(x):
         return ((x - np.nanmin(x)) / (np.nanmax(x) - np.nanmin(x)))
 
-    idx = 6
+    idx = 14  #4 or 10 or 11 or 14 or 15 16 17
     # evaluation mode
     model.eval()
     with torch.no_grad():
