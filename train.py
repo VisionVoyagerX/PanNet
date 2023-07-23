@@ -17,29 +17,27 @@ from utils import *
 
 def main():
     # Prepare device
-    # TODO add more code for server
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(device)
 
     # Initialize DataLoader
-    train_dataset = GaoFen2(
-        Path("F:/Data/GaoFen-2/train/train_gf2-001.h5"), transforms=[(RandomHorizontalFlip(1), 0.3), (RandomVerticalFlip(1), 0.3)]) #/home/ubuntu/project
+    train_dataset = WV3(
+        Path("F:/Data/WorldView3/train/train_wv3-001.h5"), transforms=[(RandomHorizontalFlip(1), 0.3), (RandomVerticalFlip(1), 0.3)]) #/home/ubuntu/project
     train_loader = DataLoader(
         dataset=train_dataset, batch_size=16, shuffle=True, drop_last=True)
 
-    validation_dataset = GaoFen2(
-        Path("F:/Data/GaoFen-2/val/valid_gf2.h5"))
+    validation_dataset = WV3(
+        Path("F:/Data/WorldView3/val/valid_wv3.h5"))
     validation_loader = DataLoader(
-        dataset=validation_dataset, batch_size=16, shuffle=True)
+        dataset=validation_dataset, batch_size=8, shuffle=True)
 
-    test_dataset = GaoFen2(
-        Path("F:/Data/GaoFen-2/drive-download-20230623T170619Z-001/test_gf2_multiExm1.h5"))
+    test_dataset = WV3(
+        Path("F:/Data/WorldView3/drive-download-20230627T115841Z-001/test_wv3_multiExm1.h5"))
     test_loader = DataLoader(
-        dataset=test_dataset, batch_size=16, shuffle=False)
+        dataset=test_dataset, batch_size=4, shuffle=False)
 
     # Initialize Model, optimizer, criterion and metrics
-    # TODO is imge_size necesasary?
-    model = PanNet_model(scale=4, mslr_mean=train_dataset.mslr_mean.to(device), mslr_std=train_dataset.mslr_std.to(device), pan_mean=train_dataset.pan_mean.to(device),
+    model = PanNet_model(scale=4, ms_channels = 8, mslr_mean=train_dataset.mslr_mean.to(device), mslr_std=train_dataset.mslr_std.to(device), pan_mean=train_dataset.pan_mean.to(device),
                      pan_std=train_dataset.pan_std.to(device)).to(device)
 
 
@@ -92,7 +90,7 @@ def main():
     pan_example = torch.randn(
         (1, 1, 256, 256)).to(device)
     mslr_example = torch.randn(
-        (1, 4, 64, 64)).to(device)
+        (1, 8, 64, 64)).to(device)
 
     summary(model, pan_example, mslr_example, verbose=1)
 
@@ -110,7 +108,7 @@ def main():
                           'tr_metrics': tr_metrics,
                           'val_metrics': val_metrics,
                           'test_metrics': test_metrics}
-            save_checkpoint(checkpoint, 'pannet_model', current_daytime)
+            save_checkpoint(checkpoint, 'pannet_model_WV3', current_daytime)
 
         try:
             # Samples the batch
@@ -218,7 +216,7 @@ def main():
                               'tr_metrics': tr_metrics,
                               'val_metrics': val_metrics,
                               'test_metrics': test_metrics}
-                save_checkpoint(checkpoint, 'pannet_model',
+                save_checkpoint(checkpoint, 'pannet_model_WV3',
                                 current_daytime + '_best_eval')
 
         # test model
@@ -269,7 +267,7 @@ def main():
                               'tr_metrics': tr_metrics,
                               # 'val_metrics': val_metrics,
                               'test_metrics': test_metrics}
-                save_checkpoint(checkpoint, 'pannet_model',
+                save_checkpoint(checkpoint, 'pannet_model_WV3',
                                 current_daytime + '_best_test')
 
     print('==> training ended <==')

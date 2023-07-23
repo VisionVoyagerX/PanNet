@@ -23,7 +23,7 @@ class Residual_Block(nn.Module):
        
 
 class PanNet_model(nn.Module):
-    def __init__(self, scale, **kwargs):
+    def __init__(self, scale, ms_channels,**kwargs):
         super(PanNet_model, self).__init__()
         self.mslr_mean = kwargs.get('mslr_mean')
         self.mslr_std =  kwargs.get('mslr_std')
@@ -32,15 +32,15 @@ class PanNet_model(nn.Module):
         self.scale = scale
 
         self.layer_0 = nn.Sequential(
-            nn.ConvTranspose2d(in_channels=4, out_channels=4, kernel_size=8, stride=4, padding=2, output_padding=0)
+            nn.ConvTranspose2d(in_channels=ms_channels, out_channels=ms_channels, kernel_size=8, stride=4, padding=2, output_padding=0)
         )
         self.layer_1 = nn.Sequential(
-            nn.Conv2d(in_channels=5, out_channels=32, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(in_channels=ms_channels + 1, out_channels=32, kernel_size=3, stride=1, padding=1),
             nn.ReLU()
         )
         self.layer_2 = nn.Sequential(
             self.make_layer(Residual_Block, 4, 32),
-            nn.Conv2d(in_channels=32, out_channels=4, kernel_size=3, stride=1, padding=1)
+            nn.Conv2d(in_channels=32, out_channels=ms_channels, kernel_size=3, stride=1, padding=1)
         )
 
         self.interpolate = interpolate
@@ -75,6 +75,6 @@ class PanNet_model(nn.Module):
 
 if __name__ == "__main__":
     pan = torch.randn(1, 1, 256, 256)
-    lr = torch.randn(1, 4, 64, 64)
-    pnn = PanNet_model(4)
+    lr = torch.randn(1, 8, 64, 64)
+    pnn = PanNet_model(scale=4, ms_channels=8)
     print(pnn(pan, lr).shape)

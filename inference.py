@@ -24,24 +24,23 @@ def main():
     print(device)
 
     # Initialize DataLoader
-    train_dataset = GaoFen2(
-        Path("F:/Data/GaoFen-2/train/train_gf2-001.h5"), transforms=[(RandomHorizontalFlip(1), 0.3), (RandomVerticalFlip(1), 0.3)]) #/home/ubuntu/project
+    train_dataset = WV3(
+        Path("F:/Data/WorldView3/train/train_wv3-001.h5"), transforms=[(RandomHorizontalFlip(1), 0.3), (RandomVerticalFlip(1), 0.3)]) #/home/ubuntu/project
     train_loader = DataLoader(
         dataset=train_dataset, batch_size=16, shuffle=True, drop_last=True)
 
-    validation_dataset = GaoFen2(
-        Path("F:/Data/GaoFen-2/val/valid_gf2.h5"))
+    validation_dataset = WV3(
+        Path("F:/Data/WorldView3/val/valid_wv3.h5"))
     validation_loader = DataLoader(
         dataset=validation_dataset, batch_size=16, shuffle=True)
 
-    test_dataset = GaoFen2(
-        Path("F:/Data/GaoFen-2/drive-download-20230623T170619Z-001/test_gf2_multiExm1.h5"))
+    test_dataset = WV3(
+        Path("F:/Data/WorldView3/drive-download-20230627T115841Z-001/test_wv3_multiExm1.h5"))
     test_loader = DataLoader(
-        dataset=test_dataset, batch_size=16, shuffle=False)
+        dataset=test_dataset, batch_size=1, shuffle=False)
 
     # Initialize Model, optimizer, criterion and metrics
-    # TODO is imge_size necesasary?
-    model = PanNet_model(scale=4, mslr_mean=train_dataset.mslr_mean.to(device), mslr_std=train_dataset.mslr_std.to(device), pan_mean=train_dataset.pan_mean.to(device),
+    model = PanNet_model(scale=4, ms_channels=8, mslr_mean=train_dataset.mslr_mean.to(device), mslr_std=train_dataset.mslr_std.to(device), pan_mean=train_dataset.pan_mean.to(device),
                      pan_std=train_dataset.pan_std.to(device)).to(device)
 
 
@@ -95,7 +94,7 @@ def main():
     pan_example = torch.randn(
         (1, 1, 256, 256)).to(device)
     mslr_example = torch.randn(
-        (1, 4, 64, 64)).to(device)
+        (1, 8, 64, 64)).to(device)
 
     summary(model, pan_example, mslr_example, verbose=1)
 
@@ -106,13 +105,13 @@ def main():
     # load checkpoint
     if continue_from_checkpoint:
         tr_metrics, val_metrics, test_metrics = load_checkpoint(torch.load(
-            'checkpoints/pannet_model/pannet_model_2023_07_19-18_16_37.pth.tar'), model, optimizer, tr_metrics, val_metrics, test_metrics)
+            'checkpoints/pannet_model_WV3/pannet_model_WV3_2023_07_22-14_38_46_best_eval.pth.tar'), model, optimizer, tr_metrics, val_metrics, test_metrics)
         print('Model Loaded ...')
 
     def scaleMinMax(x):
         return ((x - np.nanmin(x)) / (np.nanmax(x) - np.nanmin(x)))
 
-    idx = 0
+    idx = 10
     # evaluation mode
     model.eval()
     with torch.no_grad():
