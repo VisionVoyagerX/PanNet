@@ -50,7 +50,7 @@ Estimated Total Size (MB): 276.55
 
 ## WorldView-3
 
-![alt text](https://github.com/nickdndndn/PanNet/blob/main/results/Figures.png?raw=true)
+![alt text](https://github.com/nickdndndn/PanNet/blob/main/results/Figures_WV3.png?raw=true)
 
 # Qualitative Results
 ## GaoFen-2
@@ -59,5 +59,5 @@ Estimated Total Size (MB): 276.55
 
 ## WorldView-3
 
-![alt text](https://github.com/nickdndndn/PanNet/blob/main/results/Images.png?raw=true)
+![alt text](https://github.com/nickdndndn/PanNet/blob/main/results_WV3/Images.png?raw=true)
 
