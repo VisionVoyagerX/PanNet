@@ -105,13 +105,13 @@ def main():
     # load checkpoint
     if continue_from_checkpoint:
         tr_metrics, val_metrics, test_metrics = load_checkpoint(torch.load(
-            'checkpoints/pannet_model_WV3/pannet_model_WV3_2023_07_22-14_38_46_best_eval.pth.tar'), model, optimizer, tr_metrics, val_metrics, test_metrics)
+            'checkpoints/pannet_model_WV3/pannet_model_WV3_2023_07_22-14_38_46.pth.tar'), model, optimizer, tr_metrics, val_metrics, test_metrics)
         print('Model Loaded ...')
 
     def scaleMinMax(x):
         return ((x - np.nanmin(x)) / (np.nanmax(x) - np.nanmin(x)))
 
-    idx = 10
+    idx = 6
     # evaluation mode
     model.eval()
     with torch.no_grad():
