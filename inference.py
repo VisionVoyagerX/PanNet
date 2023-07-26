@@ -110,9 +110,9 @@ def main():
     def scaleMinMax(x):
         return ((x - np.nanmin(x)) / (np.nanmax(x) - np.nanmin(x)))
 
-    idx = 8  
+    idx = 15 
     #WV3: 14
-    # for gaofen: 15
+    # for gaofen: 15 or 8
     # evaluation mode
     model.eval()
     with torch.no_grad():
