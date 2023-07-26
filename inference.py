@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from torchvision.transforms import Resize, RandomHorizontalFlip, RandomVerticalFlip, RandomRotation
 from torchmetrics import MetricCollection, PeakSignalNoiseRatio, StructuralSimilarityIndexMeasure
 from torch.optim.lr_scheduler import StepLR
-from torchsummary import summary
+from torchinfo import summary
 
 from data_loader.DataLoader import DIV2K, GaoFen2, Sev2Mod, WV3, GaoFen2panformer
 from PanNet import PanNet_model
@@ -24,17 +24,17 @@ def main():
 
     # Initialize DataLoader
     train_dataset = GaoFen2(
-        Path("F:/Data/GaoFen-2/train/train_gf2-001.h5"), transforms=[(RandomHorizontalFlip(1), 0.3), (RandomVerticalFlip(1), 0.3)]) #/home/ubuntu/project
+        Path("/home/ubuntu/project/Data/GaoFen-2/train/train_gf2-001.h5"), transforms=[(RandomHorizontalFlip(1), 0.3), (RandomVerticalFlip(1), 0.3)]) #/home/ubuntu/project
     train_loader = DataLoader(
         dataset=train_dataset, batch_size=16, shuffle=True, drop_last=True)
 
     validation_dataset = GaoFen2(
-        Path("F:/Data/GaoFen-2/val/valid_gf2.h5"))
+        Path("/home/ubuntu/project/Data/GaoFen-2/val/valid_gf2.h5"))
     validation_loader = DataLoader(
         dataset=validation_dataset, batch_size=16, shuffle=True)
 
     test_dataset = GaoFen2(
-        Path("F:/Data/GaoFen-2/drive-download-20230623T170619Z-001/test_gf2_multiExm1.h5"))
+        Path("/home/ubuntu/project/Data/GaoFen-2/drive-download-20230623T170619Z-001/test_gf2_multiExm1.h5"))
     test_loader = DataLoader(
         dataset=test_dataset, batch_size=1, shuffle=False)
 
@@ -89,13 +89,13 @@ def main():
     val_steps = 50
     continue_from_checkpoint = True
 
-    # Model summary
+    '''# Model summary
     pan_example = torch.randn(
         (1, 1, 256, 256)).to(device)
     mslr_example = torch.randn(
         (1, 4, 64, 64)).to(device)
 
-    summary(model, pan_example, mslr_example, verbose=1)
+    summary(model, pan_example, mslr_example, verbose=1)'''
 
     scheduler = StepLR(optimizer, step_size=1, gamma=0.1)
 
@@ -152,7 +152,15 @@ def main():
                 axis[3].set_title('(d) GT')
                 axis[3].axis("off")
 
-            plt.savefig('results/Images.png')
+                plt.savefig('results/Images_GF2.png')
+
+                mslr = mslr.permute(0, 3, 2, 1).detach().cpu().numpy()
+                pan = pan.permute(0, 3, 2, 1).detach().cpu().numpy()
+                mssr = mssr.permute(0, 3, 2, 1).detach().cpu().numpy()
+                gt = mshr.permute(0, 3, 2, 1).detach().cpu().numpy()
+
+                np.savez('results/img_array_GF2.npz', mslr=mslr,
+                         pan=pan, mssr=mssr, gt=gt)
 
 
 if __name__ == '__main__':
