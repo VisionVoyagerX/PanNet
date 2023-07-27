@@ -110,7 +110,7 @@ def main():
     def scaleMinMax(x):
         return ((x - np.nanmin(x)) / (np.nanmax(x) - np.nanmin(x)))
 
-    idx = 15 
+    idx = 14
     #WV3: 14
     # for gaofen: 15 or 8
     # evaluation mode
