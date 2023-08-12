@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    choose_dataset = 'WV3' #or 'WV3'
+    choose_dataset = 'GF2' #or 'WV3'
 
     if choose_dataset == 'GaoFen2':
         dataset = eval('GaoFen2')
@@ -147,6 +147,7 @@ def main():
 
             # compute metrics
             test_metric = test_metric_collection.compute()
+            test_metric_collection.reset()
 
             figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(15, 5))
             axis[0].imshow((scaleMinMax(mslr.permute(0, 3, 2, 1).detach().cpu()[
