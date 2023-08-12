@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    choose_dataset = 'GF2' #or 'WV3'
+    choose_dataset = 'GaoFen2' #or 'WV3'
 
     if choose_dataset == 'GaoFen2':
         dataset = eval('GaoFen2')
