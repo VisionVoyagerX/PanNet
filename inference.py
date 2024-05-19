@@ -18,22 +18,24 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    choose_dataset = 'GaoFen2' #or 'WV3'
+    choose_dataset = 'WV3'  # choose dataset
 
     if choose_dataset == 'GaoFen2':
         dataset = eval('GaoFen2')
-        tr_dir = '/home/ubuntu/project/Data/GaoFen-2/train/train_gf2-001.h5'
-        eval_dir = '/home/ubuntu/project/Data/GaoFen-2/val/valid_gf2.h5'
-        test_dir =  '/home/ubuntu/project/Data/GaoFen-2/drive-download-20230623T170619Z-001/test_gf2_multiExm1.h5'
+        tr_dir = '../pansharpenning_dataset/GF2/train/train_gf2.h5'
+        eval_dir = '../pansharpenning_dataset/GF2/val/valid_gf2.h5'
+        test_dir = '../pansharpenning_dataset/GF2/test/test_gf2_multiExm1.h5'
         checkpoint_dir = 'checkpoints/pannet_model_GF2/pannet_model_2023_07_19-18_16_37.pth.tar'
         ms_channel = 4
+        ergas_l = 4
     elif choose_dataset == 'WV3':
         dataset = eval('WV3')
-        tr_dir = '/home/ubuntu/project/Data/WorldView3/train/train_wv3-001.h5'
-        eval_dir = '/home/ubuntu/project/Data/WorldView3/val/valid_wv3.h5'
-        test_dir =  '/home/ubuntu/project/Data/WorldView3/drive-download-20230627T115841Z-001/test_wv3_multiExm1.h5'
+        tr_dir = '../pansharpenning_dataset/WV3/train/train_wv3.h5'
+        eval_dir = '../pansharpenning_dataset/WV3/val/valid_wv3.h5'
+        test_dir = '../pansharpenning_dataset/WV3/test/test_wv3_multiExm1.h5'
         checkpoint_dir = 'checkpoints/pannet_model_WV3/pannet_model_WV3_2023_07_22-14_38_46.pth.tar'
         ms_channel = 8
+        ergas_l = 4
     else:
         print(choose_dataset, ' does not exist')
 
@@ -96,6 +98,11 @@ def main():
     tr_metrics = []
     val_metrics = []
     test_metrics = []
+
+    ergas_score = 0
+    sam_score = 0
+    q2n_score = 0
+    
     best_eval_psnr = 0
     best_test_psnr = 0
     current_daytime = datetime.datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
@@ -145,9 +152,9 @@ def main():
             test_metric = test_metric_collection.forward(mssr, mshr)
             test_report_loss += test_loss
 
-            # compute metrics
-            test_metric = test_metric_collection.compute()
-            test_metric_collection.reset()
+            ergas_score += ergas_batch(mshr, mssr, ergas_l)
+            sam_score += sam_batch(mshr, mssr)
+            q2n_score += q2n_batch(mshr, mssr)
 
             figure, axis = plt.subplots(nrows=1, ncols=4, figsize=(15, 5))
             axis[0].imshow((scaleMinMax(mslr.permute(0, 3, 2, 1).detach().cpu()[
@@ -181,6 +188,18 @@ def main():
             np.savez(f'results/img_array_{choose_dataset}_{i}.npz', mslr=mslr,
                         pan=pan, mssr=mssr, gt=gt)
 
+        # compute metrics
+        test_metric = test_metric_collection.compute()
+        test_metric_collection.reset()
+
+
+        # Print final scores
+        print(f"Final scores:\n"
+            f"ERGAS: {ergas_score / (i+1)}\n"
+            f"SAM: {sam_score / (i+1)}\n"
+            f"Q2n: {q2n_score / (i+1)}\n"
+            f"PSNR: {test_metric['psnr'].item()}\n"
+            f"SSIM: {test_metric['ssim'].item()}")
 
 if __name__ == '__main__':
     main()
